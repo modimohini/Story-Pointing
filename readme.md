@@ -65,5 +65,3 @@ Estimated Story Point: **5**
 
 ---
 
-## 📁 Folder Structure
-
