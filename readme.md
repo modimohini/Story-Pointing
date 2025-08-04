@@ -24,7 +24,7 @@ This app helps bring **structure, speed, and fairness** to your estimation proce
 
 ## 📌 How to Use the App
 
-➡️ **Live Link:** [https://modimohini.github.io/Scrum-Story-Pointing/](https://modimohini.github.io/Scrum-Story-Pointing/)
+➡️ **Live Link:** [https://modimohini.github.io/Story-Pointing/](https://modimohini.github.io/Story-Pointing/)
 
 ### Step-by-Step:
 
