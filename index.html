@@ -38,15 +38,29 @@
       text-align: center;
     }
 
-    h1 .info-icon {
-      font-size: 18px;
-      margin-left: 8px;
-      color: #007BFF;
-      cursor: pointer;
+    .floating-counter {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #007bff;
+      color: #fff;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 1s ease;
+      z-index: 999;
     }
 
-    h1 .info-icon:hover {
-      color: #0056b3;
+    body.dark .floating-counter {
+      background-color: #0056b3;
+    }
+
+    .floating-counter.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     #helpBox {
@@ -224,13 +238,6 @@
       <li>Use the toggle to switch <strong>Light/Dark Mode</strong>.</li>
       <li>View the <strong>Metrics Table</strong> to understand point logic.</li>
     </ul>
-    <br />
-    <strong>📘 What Do These Terms Mean?</strong>
-    <ul>
-      <li><strong>⚙️ Effort</strong>: How much total energy, steps, or manual work is involved. It’s about <em>how big or repetitive</em> the work feels — not how hard it is.</li>
-      <li><strong>🧠 Difficulty</strong>: How technically challenging the work is. Even small tasks can be <em>hard to solve, debug, or design</em>.</li>
-      <li><strong>🔗 Dependencies/Uncertainty</strong>: How likely this work is to be blocked or delayed. Are we waiting on someone or unclear about the scope?</li>
-    </ul>
     <p style="margin-top:10px;">
       📘 Want a deeper dive?
       <a href="https://medium.com/@AImpact/effort-vs-difficulty-vs-dependencies-the-secret-to-smarter-story-pointing-in-agile-teams-fa1c06b7c520"
@@ -310,6 +317,8 @@
     </tbody>
   </table>
 
+  <div class="floating-counter" id="usageCounter">🧮 Used by 0 teams</div>
+
   <script>
     const scores = {
       Effort: { Tiny: 1, Small: 2, Moderate: 3, Medium: 4, High: 5, Extreme: 6 },
@@ -360,7 +369,6 @@
     function toggleHelp() {
       const help = document.getElementById('helpBox');
       const isExpanded = help.style.maxHeight && help.style.maxHeight !== '0px';
-
       if (isExpanded) {
         help.style.maxHeight = '0';
         help.style.paddingTop = '0';
@@ -378,13 +386,41 @@
       const modeLabel = document.getElementById('modeLabel');
 
       body.classList.toggle('dark', checkbox.checked);
+      modeLabel.textContent = checkbox.checked ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
 
-      if (checkbox.checked) {
-        modeLabel.textContent = '☀️ Light Mode';
-      } else {
-        modeLabel.textContent = '🌙 Dark Mode';
+    async function updateUsageCounter() {
+      const BIN_ID = "689fa38ed0ea881f405a2fac";
+      const API_KEY = "$2a$10$Fon0lgj216IxzegLVp600eIutsY1a0B0Eh2qZjK4pAt9aYXCLi6cu";
+
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+          headers: { 'X-Master-Key': API_KEY }
+        });
+
+        const data = await res.json();
+        const count = (data?.record?.count ?? 0) + 1;
+
+        const counter = document.getElementById('usageCounter');
+        counter.textContent = `🧮 Used by ${count.toLocaleString()} teams`;
+        counter.classList.add('show');
+
+        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': API_KEY
+          },
+          body: JSON.stringify({ count })
+        });
+      } catch (e) {
+        console.error('Usage counter error:', e);
       }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateUsageCounter();
+    });
   </script>
 </body>
 </html>
